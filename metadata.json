@@ -1,0 +1,6 @@
+{
+  "name": "Meeting Room Booking System",
+  "description": "A responsive system for employees to book meeting rooms and for admins to manage rooms and view booking statistics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
