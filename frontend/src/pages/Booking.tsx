@@ -23,7 +23,11 @@ export default function BookingPage({ rooms, onBook, preselectedRoomId, onCancel
   }, [preselectedRoomId, rooms]);
 
   useEffect(() => {
-    setBookingDate(new Date().toISOString().split('T')[0]);
+    const now = new Date();
+    const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60_000)
+      .toISOString()
+      .split('T')[0];
+    setBookingDate(localDate);
   }, []);
 
   async function handleSubmit(event: FormEvent) {

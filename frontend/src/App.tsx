@@ -89,13 +89,15 @@ export default function App() {
     }
   }
 
-  async function withBusy(action: () => Promise<void>) {
+  async function withBusy<T>(action: () => Promise<T>): Promise<T> {
     setBusy(true);
     setAppError('');
     try {
-      await action();
+      return await action();
     } catch (error) {
-      setAppError(error instanceof Error ? error.message : 'Unexpected error');
+      const resolvedError = error instanceof Error ? error : new Error('Unexpected error');
+      setAppError(resolvedError.message);
+      throw resolvedError;
     } finally {
       setBusy(false);
     }

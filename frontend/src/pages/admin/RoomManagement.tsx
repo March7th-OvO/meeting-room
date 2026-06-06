@@ -49,13 +49,17 @@ export default function RoomManagement({ rooms, onAddRoom, onUpdateRoom, onDelet
       equipment: form.equipment.filter(Boolean),
     };
 
-    if (isEditing && editingRoomId !== null) {
-      await onUpdateRoom(editingRoomId, payload);
-    } else {
-      await onAddRoom(payload);
-    }
+    try {
+      if (isEditing && editingRoomId !== null) {
+        await onUpdateRoom(editingRoomId, payload);
+      } else {
+        await onAddRoom(payload);
+      }
 
-    resetForm();
+      resetForm();
+    } catch {
+      // Parent layout already shows the backend error banner.
+    }
   }
 
   return (

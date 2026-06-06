@@ -20,7 +20,11 @@ export default function Login({ onLogin, busy, error }: LoginProps) {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    await onLogin({ username, password });
+    try {
+      await onLogin({ username, password });
+    } catch {
+      // Parent already exposes the error banner/text state.
+    }
   }
 
   return (
