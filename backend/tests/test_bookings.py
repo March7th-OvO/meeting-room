@@ -123,6 +123,30 @@ def test_booking_owner_can_cancel(client):
     assert cancel_response.json()["data"]["status"] == "cancelled"
 
 
+def test_booking_list_filters_work_for_user_and_admin(client):
+    user_token = login(client, "user1")
+    admin_token = login(client, "admin")
+
+    user_filtered = client.get(
+        "/api/v1/bookings/me?status=approved&booking_date_from=2026-06-07&booking_date_to=2026-06-07",
+        headers={"Authorization": f"Bearer {user_token}"},
+    )
+    assert user_filtered.status_code == 200
+    user_data = user_filtered.json()["data"]
+    assert len(user_data) == 1
+    assert user_data[0]["status"] == "approved"
+
+    admin_filtered = client.get(
+        "/api/v1/admin/bookings?status=pending&room_id=1&booking_date_from=2026-06-08&booking_date_to=2026-06-08",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert admin_filtered.status_code == 200
+    admin_data = admin_filtered.json()["data"]
+    assert len(admin_data) == 1
+    assert admin_data[0]["room_id"] == 1
+    assert admin_data[0]["status"] == "pending"
+
+
 def test_booking_for_past_time_today_is_rejected(client, monkeypatch):
     user_token = login(client, "user1")
 

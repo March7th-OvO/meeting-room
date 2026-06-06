@@ -15,6 +15,25 @@ def test_authenticated_user_can_list_rooms(client):
     assert any(room["name"] == "Boardroom A" for room in data)
 
 
+def test_room_list_supports_filters_and_detail(client):
+    token = login(client, "user1")
+    headers = {"Authorization": f"Bearer {token}"}
+
+    filtered_response = client.get(
+        "/api/v1/rooms?keyword=Boardroom&min_capacity=10&status=available",
+        headers=headers,
+    )
+
+    assert filtered_response.status_code == 200
+    filtered_data = filtered_response.json()["data"]
+    assert len(filtered_data) == 1
+    assert filtered_data[0]["name"] == "Boardroom A"
+
+    detail_response = client.get("/api/v1/rooms/1", headers=headers)
+    assert detail_response.status_code == 200
+    assert detail_response.json()["data"]["name"] == "Boardroom A"
+
+
 def test_admin_can_create_update_and_delete_room(client):
     admin_token = login(client, "admin")
     headers = {"Authorization": f"Bearer {admin_token}"}
