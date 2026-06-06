@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.repositories.bookings import BookingRepository
 from app.repositories.rooms import RoomRepository
 from app.schemas.rooms import RoomCreate, RoomResponse, RoomUpdate
 
@@ -50,5 +51,10 @@ def delete_room(db: Session, room_id: int) -> None:
     room = repo.get(room_id)
     if room is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="room not found")
+    if BookingRepository(db).has_active_bookings_for_room(room_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="room has active bookings and cannot be deleted",
+        )
     repo.delete(room)
     db.commit()

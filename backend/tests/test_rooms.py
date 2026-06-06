@@ -69,3 +69,14 @@ def test_user_cannot_create_room(client):
     )
 
     assert response.status_code == 403
+
+
+def test_admin_cannot_delete_room_with_active_bookings(client):
+    admin_token = login(client, "admin")
+
+    response = client.delete(
+        "/api/v1/admin/rooms/1",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert response.status_code == 400

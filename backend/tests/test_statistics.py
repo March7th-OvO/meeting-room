@@ -15,7 +15,8 @@ def test_admin_statistics_endpoints_return_data(client):
 
     overview_data = overview.json()["data"]
     assert overview_data["room_count"] >= 4
-    assert "pending_booking_count" in overview_data
+    assert overview_data["approved_booking_count"] >= 1
+    assert overview_data["pending_booking_count"] >= 1
 
     assert isinstance(usage.json()["data"], list)
     assert isinstance(status.json()["data"], list)

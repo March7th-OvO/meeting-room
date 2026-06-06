@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from datetime import date, datetime, time
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,7 +14,7 @@ from app.core.config import get_settings
 from app.core.security import get_password_hash
 from app.db.base import Base
 from app.db.session import get_engine, get_session_local
-from app.models import Room, RoomEquipment, User
+from app.models import Booking, Room, RoomEquipment, User
 
 
 def seed_data() -> None:
@@ -26,6 +27,7 @@ def seed_data() -> None:
                 User(username="admin", password_hash=get_password_hash("123456"), role="admin"),
             ]
             db.add_all(demo_users)
+            db.flush()
 
         room_exists = db.scalar(select(Room.id).limit(1))
         if not room_exists:
@@ -66,6 +68,51 @@ def seed_data() -> None:
                 ),
             ]
             db.add_all(rooms)
+            db.flush()
+
+        booking_exists = db.scalar(select(Booking.id).limit(1))
+        if not booking_exists:
+            user1 = db.scalar(select(User).where(User.username == "user1"))
+            user2 = db.scalar(select(User).where(User.username == "user2"))
+            admin = db.scalar(select(User).where(User.username == "admin"))
+            room_a = db.scalar(select(Room).where(Room.name == "Boardroom A"))
+            room_b = db.scalar(select(Room).where(Room.name == "Meeting Room B"))
+            room_c = db.scalar(select(Room).where(Room.name == "Huddle Room C"))
+
+            if user1 and user2 and admin and room_a and room_b and room_c:
+                db.add_all(
+                    [
+                        Booking(
+                            room_id=room_b.id,
+                            user_id=user1.id,
+                            booking_date=date(2026, 6, 7),
+                            start_time=time(10, 0),
+                            end_time=time(11, 0),
+                            status="approved",
+                            purpose="Weekly Sync",
+                            approved_by=admin.id,
+                            approved_at=datetime.utcnow(),
+                        ),
+                        Booking(
+                            room_id=room_a.id,
+                            user_id=user2.id,
+                            booking_date=date(2026, 6, 8),
+                            start_time=time(14, 0),
+                            end_time=time(16, 0),
+                            status="pending",
+                            purpose="Quarterly Planning",
+                        ),
+                        Booking(
+                            room_id=room_c.id,
+                            user_id=user1.id,
+                            booking_date=date(2026, 6, 9),
+                            start_time=time(9, 0),
+                            end_time=time(10, 30),
+                            status="pending",
+                            purpose="Client Interview",
+                        ),
+                    ]
+                )
 
         db.commit()
 

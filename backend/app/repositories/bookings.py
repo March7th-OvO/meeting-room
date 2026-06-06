@@ -97,3 +97,10 @@ class BookingRepository:
         if exclude_booking_id is not None:
             statement = statement.where(Booking.id != exclude_booking_id)
         return self.db.scalar(statement) is not None
+
+    def has_active_bookings_for_room(self, room_id: int) -> bool:
+        statement = select(Booking.id).where(
+            Booking.room_id == room_id,
+            Booking.status.in_(["pending", "approved"]),
+        )
+        return self.db.scalar(statement) is not None
