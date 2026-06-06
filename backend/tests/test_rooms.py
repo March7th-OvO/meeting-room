@@ -71,6 +71,23 @@ def test_user_cannot_create_room(client):
     assert response.status_code == 403
 
 
+def test_admin_cannot_create_room_with_invalid_status(client):
+    admin_token = login(client, "admin")
+
+    response = client.post(
+        "/api/v1/admin/rooms",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={
+            "name": "Broken Room",
+            "capacity": 2,
+            "status": "offline",
+            "equipment": [],
+        },
+    )
+
+    assert response.status_code == 422
+
+
 def test_admin_cannot_delete_room_with_active_bookings(client):
     admin_token = login(client, "admin")
 

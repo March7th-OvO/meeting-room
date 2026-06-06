@@ -1,6 +1,11 @@
+from typing import Literal
+
 from datetime import date, datetime, time
 
 from pydantic import BaseModel
+
+BookingStatus = Literal["pending", "approved", "rejected", "cancelled"]
+AdminBookingDecision = Literal["approved", "rejected"]
 
 
 class BookingCreate(BaseModel):
@@ -12,7 +17,7 @@ class BookingCreate(BaseModel):
 
 
 class BookingStatusUpdate(BaseModel):
-    status: str
+    status: AdminBookingDecision
     approval_comment: str | None = None
 
 
@@ -24,7 +29,7 @@ class BookingResponse(BaseModel):
     start_time: time
     end_time: time
     purpose: str
-    status: str
+    status: BookingStatus
     approval_comment: str | None = None
     approved_by: int | None = None
     approved_at: datetime | None = None

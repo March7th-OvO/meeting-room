@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from backend.tests.helpers import login
+from app.services import bookings as booking_service
 
 
 def test_user_booking_flow_and_admin_approval(client):
@@ -118,3 +121,40 @@ def test_booking_owner_can_cancel(client):
 
     assert cancel_response.status_code == 200
     assert cancel_response.json()["data"]["status"] == "cancelled"
+
+
+def test_booking_for_past_time_today_is_rejected(client, monkeypatch):
+    user_token = login(client, "user1")
+
+    class FixedDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return cls(2026, 6, 7, 15, 0, 0, tzinfo=tz)
+
+    monkeypatch.setattr(booking_service, "datetime", FixedDateTime)
+
+    response = client.post(
+        "/api/v1/bookings",
+        headers={"Authorization": f"Bearer {user_token}"},
+        json={
+            "room_id": 3,
+            "booking_date": "2026-06-07",
+            "start_time": "14:00:00",
+            "end_time": "14:30:00",
+            "purpose": "Past slot",
+        },
+    )
+
+    assert response.status_code == 400
+
+
+def test_admin_booking_status_rejects_invalid_value(client):
+    admin_token = login(client, "admin")
+
+    response = client.patch(
+        "/api/v1/admin/bookings/2/status",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"status": "cancelled"},
+    )
+
+    assert response.status_code == 422

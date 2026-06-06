@@ -35,6 +35,11 @@ def _validate_booking_payload(db: Session, payload: BookingCreate, booking_id: i
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid time range")
     if payload.booking_date < date.today():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="booking date is in the past")
+    if payload.booking_date == date.today() and payload.start_time <= datetime.now().time():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="booking time is in the past",
+        )
     if BookingRepository(db).has_conflict(
         room_id=payload.room_id,
         booking_date=payload.booking_date,
@@ -119,8 +124,6 @@ def approve_booking(db: Session, booking_id: int, payload: BookingStatusUpdate, 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="booking not found")
     if booking.status != "pending":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="only pending bookings can be updated")
-    if payload.status not in {"approved", "rejected"}:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid status")
     if payload.status == "approved" and BookingRepository(db).has_conflict(
         room_id=booking.room_id,
         booking_date=booking.booking_date,
