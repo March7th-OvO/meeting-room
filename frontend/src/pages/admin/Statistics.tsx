@@ -10,6 +10,11 @@ export default function Statistics({ statistics }: StatisticsProps) {
     return <div className="text-slate-500">Statistics will load after the admin session is ready.</div>;
   }
 
+  const roomStatusColors: Record<string, string> = {
+    available: '#16a34a',
+    maintenance: '#dc2626',
+  };
+
   const overviewCards = [
     { name: 'Rooms', value: statistics.overview.roomCount, color: '#0f172a' },
     { name: 'Approved', value: statistics.overview.approvedBookingCount, color: '#059669' },
@@ -39,7 +44,13 @@ export default function Statistics({ statistics }: StatisticsProps) {
         radius: ['40%', '70%'],
         avoidLabelOverlap: false,
         labelLine: { show: false },
-        data: statistics.bookingStatus.map((item) => ({ value: item.value, name: item.name })),
+        data: statistics.roomStatus.map((item) => ({
+          value: item.value,
+          name: item.name,
+          itemStyle: {
+            color: roomStatusColors[item.name] ?? '#64748b',
+          },
+        })),
       },
     ],
   };
@@ -72,7 +83,7 @@ export default function Statistics({ statistics }: StatisticsProps) {
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200">
           <div className="p-6 border-b border-slate-100">
-            <h3 className="text-lg font-semibold text-slate-900">Booking Status</h3>
+            <h3 className="text-lg font-semibold text-slate-900">Room Status</h3>
           </div>
           <div className="p-6">
             <ReactECharts option={statusOption} style={{ height: '340px', width: '100%' }} />

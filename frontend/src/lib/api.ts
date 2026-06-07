@@ -176,14 +176,14 @@ export async function updateBookingStatus(token: string, bookingId: number, payl
 }
 
 export async function getStatistics(token: string): Promise<StatisticsBundle> {
-  const [overview, roomUsage, bookingStatus] = await Promise.all([
+  const [overview, roomUsage, roomStatus] = await Promise.all([
     request<{ room_count: number; approved_booking_count: number; pending_booking_count: number }>(
       '/admin/statistics/overview',
       {},
       token,
     ),
     request<RawNamedValue[]>('/admin/statistics/room-usage', {}, token),
-    request<RawNamedValue[]>('/admin/statistics/booking-status', {}, token),
+    request<RawNamedValue[]>('/admin/statistics/room-status', {}, token),
   ]);
 
   return {
@@ -193,6 +193,6 @@ export async function getStatistics(token: string): Promise<StatisticsBundle> {
       pendingBookingCount: overview.pending_booking_count,
     },
     roomUsage,
-    bookingStatus,
+    roomStatus,
   };
 }

@@ -69,5 +69,5 @@ export interface StatisticsBundle {
     pendingBookingCount: number;
   };
   roomUsage: NamedValue[];
-  bookingStatus: NamedValue[];
+  roomStatus: NamedValue[];
 }

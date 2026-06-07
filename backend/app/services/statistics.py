@@ -32,10 +32,10 @@ def get_room_usage(db: Session) -> list[dict]:
     return [NamedValue(name=name, value=count).model_dump() for name, count in rows]
 
 
-def get_booking_status_counts(db: Session) -> list[dict]:
+def get_room_status_counts(db: Session) -> list[dict]:
     rows = db.execute(
-        select(Booking.status, func.count(Booking.id))
-        .group_by(Booking.status)
-        .order_by(Booking.status)
+        select(Room.status, func.count(Room.id))
+        .group_by(Room.status)
+        .order_by(Room.status)
     ).all()
     return [NamedValue(name=name, value=count).model_dump() for name, count in rows]
