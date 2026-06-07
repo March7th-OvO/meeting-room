@@ -11,6 +11,7 @@ import {
   Settings,
 } from 'lucide-react';
 import { User } from '../types';
+import { getRoleLabel } from '../lib/labels';
 
 interface LayoutProps {
   user: User;
@@ -26,15 +27,15 @@ export default function Layout({ user, onLogout, children, currentView, onNaviga
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const userNavigation = [
-    { name: 'Find Rooms', id: 'search', icon: Search },
-    { name: 'New Booking', id: 'book', icon: CalendarPlus },
-    { name: 'My Bookings', id: 'my-bookings', icon: CalendarDays },
+    { name: '查找会议室', id: 'search', icon: Search },
+    { name: '新建预约', id: 'book', icon: CalendarPlus },
+    { name: '我的预约', id: 'my-bookings', icon: CalendarDays },
   ];
 
   const adminNavigation = [
-    { name: 'Room Admin', id: 'manage-rooms', icon: Settings },
-    { name: 'Statistics', id: 'statistics', icon: BarChart3 },
-    { name: 'Approvals', id: 'manage-bookings', icon: LayoutDashboard },
+    { name: '会议室管理', id: 'manage-rooms', icon: Settings },
+    { name: '统计', id: 'statistics', icon: BarChart3 },
+    { name: '审批管理', id: 'manage-bookings', icon: LayoutDashboard },
   ];
 
   const navigation = user.role === 'admin' ? [...userNavigation, ...adminNavigation] : userNavigation;
@@ -81,7 +82,7 @@ export default function Layout({ user, onLogout, children, currentView, onNaviga
 
         <div className="p-4 border-t border-slate-800 text-sm">
           <div className="text-white font-medium">{user.username}</div>
-          <div className="text-slate-400 capitalize">{user.role}</div>
+          <div className="text-slate-400">{getRoleLabel(user.role)}</div>
         </div>
       </aside>
 
@@ -92,14 +93,14 @@ export default function Layout({ user, onLogout, children, currentView, onNaviga
               <Menu className="h-6 w-6" />
             </button>
             <div>
-              <h1 className="text-slate-900 font-semibold text-lg">Workspace Dashboard</h1>
-              <p className="text-slate-500 text-sm">Connected to FastAPI and SQLite</p>
+              <h1 className="text-slate-900 font-semibold text-lg">工作台总览</h1>
+              <p className="text-slate-500 text-sm">已连接 FastAPI 和 SQLite</p>
             </div>
           </div>
 
           <button onClick={onLogout} className="text-slate-700 hover:text-slate-900 flex items-center transition-colors">
             <LogOut className="h-4 w-4 mr-1" />
-            <span>{busy ? 'Working...' : 'Sign Out'}</span>
+            <span>{busy ? '处理中...' : '退出登录'}</span>
           </button>
         </header>
 

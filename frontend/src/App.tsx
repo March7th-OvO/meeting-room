@@ -7,6 +7,7 @@ import {
   createRoom,
   deleteRoom,
   getAdminBookings,
+  getCurrentRoomUsage,
   getCurrentUser,
   getMyBookings,
   getStatistics,
@@ -68,6 +69,39 @@ export default function App() {
     bootstrap();
   }, []);
 
+  useEffect(() => {
+    if (!token || currentUser?.role !== 'admin' || currentView !== 'statistics') {
+      return;
+    }
+
+    let active = true;
+
+    const refreshCurrentRoomUsage = async () => {
+      try {
+        const latestUsage = await getCurrentRoomUsage(token);
+        if (!active) return;
+        setStatistics((current) =>
+          current
+            ? {
+                ...current,
+                currentRoomUsage: latestUsage,
+              }
+            : current,
+        );
+      } catch {
+        // Keep the last successful snapshot if polling fails.
+      }
+    };
+
+    refreshCurrentRoomUsage();
+    const timer = window.setInterval(refreshCurrentRoomUsage, 30_000);
+
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [token, currentUser?.role, currentView]);
+
   async function refreshData(activeToken: string, user = currentUser) {
     if (!user) return;
     const roomsData = await listRooms(activeToken);
@@ -95,7 +129,7 @@ export default function App() {
     try {
       return await action();
     } catch (error) {
-      const resolvedError = error instanceof Error ? error : new Error('Unexpected error');
+      const resolvedError = error instanceof Error ? error : new Error('发生了未知错误');
       setAppError(resolvedError.message);
       throw resolvedError;
     } finally {
@@ -129,7 +163,7 @@ export default function App() {
 
   function requireSession() {
     if (!token || !currentUser) {
-      throw new Error('Session expired. Please log in again.');
+      throw new Error('会话已过期，请重新登录。');
     }
     return { token, user: currentUser };
   }
@@ -189,7 +223,7 @@ export default function App() {
   };
 
   if (bootstrapping) {
-    return <div className="min-h-screen bg-slate-100 flex items-center justify-center text-slate-600">Loading workspace...</div>;
+    return <div className="min-h-screen bg-slate-100 flex items-center justify-center text-slate-600">正在加载工作区...</div>;
   }
 
   if (!currentUser) {

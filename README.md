@@ -59,8 +59,8 @@ npm run dev
 
 ```bash
 cd backend
-py -3.11 -m pip install -r requirements.txt
-py -3.11 -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+py -3.13 -m pip install -r requirements.txt
+py -3.13 -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
 默认地址：

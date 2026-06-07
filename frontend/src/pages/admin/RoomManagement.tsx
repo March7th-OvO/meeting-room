@@ -1,5 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { MeetingRoom, RoomPayload } from '../../types';
+import { getRoomStatusLabel } from '../../lib/labels';
 
 interface RoomManagementProps {
   rooms: MeetingRoom[];
@@ -23,7 +24,7 @@ export default function RoomManagement({ rooms, onAddRoom, onUpdateRoom, onDelet
   const [form, setForm] = useState<RoomPayload>(emptyForm);
 
   const isEditing = editingRoomId !== null;
-  const submitLabel = useMemo(() => (isEditing ? 'Update room' : 'Create room'), [isEditing]);
+  const submitLabel = useMemo(() => (isEditing ? '更新会议室' : '创建会议室'), [isEditing]);
 
   function fillForm(room: MeetingRoom) {
     setEditingRoomId(room.id);
@@ -67,18 +68,18 @@ export default function RoomManagement({ rooms, onAddRoom, onUpdateRoom, onDelet
       <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6">
         <div className="bg-white shadow-sm border border-slate-200 rounded-3xl overflow-hidden">
           <div className="p-6 border-b border-slate-100">
-            <h2 className="text-2xl font-semibold text-slate-900">Room Inventory</h2>
-            <p className="text-slate-500 text-sm mt-1">Manage rooms and their equipment list from the admin API.</p>
+            <h2 className="text-2xl font-semibold text-slate-900">会议室列表</h2>
+            <p className="text-slate-500 text-sm mt-1">通过管理员 API 管理会议室及其设备列表。</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
                 <tr>
-                  <th className="px-6 py-3 font-semibold">Name</th>
-                  <th className="px-6 py-3 font-semibold">Capacity</th>
-                  <th className="px-6 py-3 font-semibold">Equipment</th>
-                  <th className="px-6 py-3 font-semibold">Status</th>
-                  <th className="px-6 py-3 font-semibold text-right">Actions</th>
+                  <th className="px-6 py-3 font-semibold">名称</th>
+                  <th className="px-6 py-3 font-semibold">容量</th>
+                  <th className="px-6 py-3 font-semibold">设备</th>
+                  <th className="px-6 py-3 font-semibold">状态</th>
+                  <th className="px-6 py-3 font-semibold text-right">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm text-slate-600">
@@ -100,15 +101,15 @@ export default function RoomManagement({ rooms, onAddRoom, onUpdateRoom, onDelet
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${room.status === 'available' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-                        {room.status}
+                        {getRoomStatusLabel(room.status)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button onClick={() => fillForm(room)} className="text-cyan-700 hover:text-cyan-900 mr-3">
-                        Edit
+                        编辑
                       </button>
                       <button onClick={() => onDeleteRoom(room.id)} disabled={busy} className="text-rose-600 hover:text-rose-700 disabled:opacity-60">
-                        Delete
+                        删除
                       </button>
                     </td>
                   </tr>
@@ -121,11 +122,11 @@ export default function RoomManagement({ rooms, onAddRoom, onUpdateRoom, onDelet
         <form onSubmit={handleSubmit} className="bg-slate-950 text-white rounded-3xl p-6 space-y-4 shadow-sm">
           <div>
             <h3 className="text-xl font-semibold">{submitLabel}</h3>
-            <p className="text-slate-300 text-sm mt-1">Equipment entries are comma separated.</p>
+            <p className="text-slate-300 text-sm mt-1">设备项请使用逗号分隔。</p>
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Name</label>
+            <label className="block text-sm mb-1">名称</label>
             <input
               value={form.name}
               onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
@@ -136,7 +137,7 @@ export default function RoomManagement({ rooms, onAddRoom, onUpdateRoom, onDelet
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm mb-1">Capacity</label>
+              <label className="block text-sm mb-1">容量</label>
               <input
                 type="number"
                 min="1"
@@ -147,20 +148,20 @@ export default function RoomManagement({ rooms, onAddRoom, onUpdateRoom, onDelet
               />
             </div>
             <div>
-              <label className="block text-sm mb-1">Status</label>
+              <label className="block text-sm mb-1">状态</label>
               <select
                 value={form.status}
                 onChange={(event) => setForm((current) => ({ ...current, status: event.target.value as RoomPayload['status'] }))}
                 className="w-full rounded-xl bg-white/10 border border-white/10 px-3 py-2.5"
               >
-                <option value="available">available</option>
-                <option value="maintenance">maintenance</option>
+                <option value="available">可用</option>
+                <option value="maintenance">维护中</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Location</label>
+            <label className="block text-sm mb-1">位置</label>
             <input
               value={form.location}
               onChange={(event) => setForm((current) => ({ ...current, location: event.target.value }))}
@@ -169,7 +170,7 @@ export default function RoomManagement({ rooms, onAddRoom, onUpdateRoom, onDelet
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Description</label>
+            <label className="block text-sm mb-1">描述</label>
             <textarea
               value={form.description}
               onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
@@ -179,7 +180,7 @@ export default function RoomManagement({ rooms, onAddRoom, onUpdateRoom, onDelet
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Equipment</label>
+            <label className="block text-sm mb-1">设备</label>
             <input
               value={form.equipment.join(', ')}
               onChange={(event) =>
@@ -192,7 +193,7 @@ export default function RoomManagement({ rooms, onAddRoom, onUpdateRoom, onDelet
                 }))
               }
               className="w-full rounded-xl bg-white/10 border border-white/10 px-3 py-2.5"
-              placeholder="Projector, Whiteboard"
+              placeholder="投影仪，白板"
             />
           </div>
 
@@ -202,7 +203,7 @@ export default function RoomManagement({ rooms, onAddRoom, onUpdateRoom, onDelet
             </button>
             {isEditing ? (
               <button type="button" onClick={resetForm} className="rounded-xl border border-white/20 px-4 py-2.5">
-                Reset
+                重置
               </button>
             ) : null}
           </div>

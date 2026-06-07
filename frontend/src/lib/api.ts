@@ -57,16 +57,16 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
   try {
     payload = await response.json();
   } catch {
-    throw new Error('Unexpected server response');
+    throw new Error('服务器返回了无法识别的响应');
   }
 
   if (!response.ok) {
-    const detail = 'detail' in payload && payload.detail ? payload.detail : 'Request failed';
+    const detail = 'detail' in payload && payload.detail ? payload.detail : '请求失败';
     throw new Error(detail);
   }
 
   if (!('data' in payload)) {
-    throw new Error('Malformed API response');
+    throw new Error('API 响应格式不正确');
   }
 
   return payload.data;
@@ -175,8 +175,12 @@ export async function updateBookingStatus(token: string, bookingId: number, payl
   return mapBooking(data);
 }
 
+export async function getCurrentRoomUsage(token: string) {
+  return request<RawNamedValue[]>('/admin/statistics/current-room-usage', {}, token);
+}
+
 export async function getStatistics(token: string): Promise<StatisticsBundle> {
-  const [overview, roomUsage, roomStatus] = await Promise.all([
+  const [overview, roomUsage, roomStatus, currentRoomUsage] = await Promise.all([
     request<{ room_count: number; approved_booking_count: number; pending_booking_count: number }>(
       '/admin/statistics/overview',
       {},
@@ -184,6 +188,7 @@ export async function getStatistics(token: string): Promise<StatisticsBundle> {
     ),
     request<RawNamedValue[]>('/admin/statistics/room-usage', {}, token),
     request<RawNamedValue[]>('/admin/statistics/room-status', {}, token),
+    request<RawNamedValue[]>('/admin/statistics/current-room-usage', {}, token),
   ]);
 
   return {
@@ -194,5 +199,6 @@ export async function getStatistics(token: string): Promise<StatisticsBundle> {
     },
     roomUsage,
     roomStatus,
+    currentRoomUsage,
   };
 }

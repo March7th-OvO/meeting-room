@@ -9,7 +9,12 @@ from app.db.session import get_db
 from app.models.user import User
 from app.schemas.bookings import BookingStatusUpdate
 from app.services.bookings import approve_booking, list_admin_bookings
-from app.services.statistics import get_overview, get_room_status_counts, get_room_usage
+from app.services.statistics import (
+    get_current_room_usage_counts,
+    get_overview,
+    get_room_status_counts,
+    get_room_usage,
+)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -68,3 +73,11 @@ def room_status(
     db: Session = Depends(get_db),
 ):
     return success_response(get_room_status_counts(db))
+
+
+@router.get("/statistics/current-room-usage")
+def current_room_usage(
+    _: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    return success_response(get_current_room_usage_counts(db))

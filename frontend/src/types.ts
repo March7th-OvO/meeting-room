@@ -70,4 +70,5 @@ export interface StatisticsBundle {
   };
   roomUsage: NamedValue[];
   roomStatus: NamedValue[];
+  currentRoomUsage: NamedValue[];
 }

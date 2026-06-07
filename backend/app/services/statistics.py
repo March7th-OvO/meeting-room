@@ -1,4 +1,6 @@
-from sqlalchemy import func, select
+from datetime import datetime
+
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
 from app.models.booking import Booking
@@ -27,7 +29,8 @@ def get_room_usage(db: Session) -> list[dict]:
         .select_from(Room)
         .join(Booking, Booking.room_id == Room.id, isouter=True)
         .group_by(Room.id)
-        .order_by(Room.id)
+        .order_by(func.count(Booking.id).desc(), Room.name.asc())
+        .limit(5)
     ).all()
     return [NamedValue(name=name, value=count).model_dump() for name, count in rows]
 
@@ -39,3 +42,60 @@ def get_room_status_counts(db: Session) -> list[dict]:
         .order_by(Room.status)
     ).all()
     return [NamedValue(name=name, value=count).model_dump() for name, count in rows]
+
+
+def get_current_room_usage_counts(db: Session) -> list[dict]:
+    now = datetime.now()
+    current_date = now.date()
+    current_time = now.time().replace(microsecond=0)
+
+    in_use_case = func.max(
+        case(
+            (
+                (Booking.booking_date == current_date)
+                & (Booking.start_time <= current_time)
+                & (Booking.end_time > current_time)
+                & (Booking.status == "approved"),
+                1,
+            ),
+            else_=0,
+        )
+    )
+    under_review_case = func.max(
+        case(
+            (
+                (Booking.booking_date == current_date)
+                & (Booking.start_time <= current_time)
+                & (Booking.end_time > current_time)
+                & (Booking.status == "pending"),
+                1,
+            ),
+            else_=0,
+        )
+    )
+
+    rows = db.execute(
+        select(Room.id, in_use_case.label("in_use"), under_review_case.label("under_review"))
+        .select_from(Room)
+        .join(Booking, Booking.room_id == Room.id, isouter=True)
+        .group_by(Room.id)
+    ).all()
+
+    counts = {
+        "in_use": 0,
+        "under_review": 0,
+        "idle": 0,
+    }
+    for _, in_use, under_review in rows:
+        if in_use:
+            counts["in_use"] += 1
+        elif under_review:
+            counts["under_review"] += 1
+        else:
+            counts["idle"] += 1
+
+    return [
+        NamedValue(name="in_use", value=counts["in_use"]).model_dump(),
+        NamedValue(name="under_review", value=counts["under_review"]).model_dump(),
+        NamedValue(name="idle", value=counts["idle"]).model_dump(),
+    ]

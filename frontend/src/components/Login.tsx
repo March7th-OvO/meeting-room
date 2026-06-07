@@ -9,9 +9,9 @@ interface LoginProps {
 }
 
 const demoAccounts = [
-  { username: 'user1', role: 'User' },
-  { username: 'user2', role: 'User' },
-  { username: 'admin', role: 'Admin' },
+  { username: 'user1', role: '普通用户' },
+  { username: 'user2', role: '普通用户' },
+  { username: 'admin', role: '管理员' },
 ];
 
 export default function Login({ onLogin, busy, error }: LoginProps) {
@@ -37,7 +37,7 @@ export default function Login({ onLogin, busy, error }: LoginProps) {
             </div>
             <div>
               <h1 className="text-2xl font-semibold">Meeting Room Hub</h1>
-              <p className="text-slate-300 text-sm">React frontend + FastAPI backend</p>
+              <p className="text-slate-300 text-sm">React 前端 + FastAPI 后端</p>
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@ export default function Login({ onLogin, busy, error }: LoginProps) {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-slate-700 mb-1">
-                Username
+                用户名
               </label>
               <div className="relative">
                 <UserCircle2 className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -64,7 +64,7 @@ export default function Login({ onLogin, busy, error }: LoginProps) {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-                Password
+                密码
               </label>
               <div className="relative">
                 <KeyRound className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -87,12 +87,12 @@ export default function Login({ onLogin, busy, error }: LoginProps) {
               disabled={busy}
               className="w-full py-3 px-4 rounded-xl text-sm font-medium text-white bg-slate-950 hover:bg-slate-800 disabled:opacity-60 transition-colors"
             >
-              {busy ? 'Signing in...' : 'Sign In'}
+              {busy ? '登录中...' : '登录'}
             </button>
           </form>
 
           <div className="pt-5 border-t border-slate-100">
-            <h2 className="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-3">Demo Accounts</h2>
+            <h2 className="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-3">演示账号</h2>
             <div className="grid gap-2">
               {demoAccounts.map((account) => (
                 <button
@@ -108,7 +108,7 @@ export default function Login({ onLogin, busy, error }: LoginProps) {
                     <div className="text-sm font-medium text-slate-800">{account.username}</div>
                     <div className="text-xs text-slate-500">{account.role}</div>
                   </div>
-                  <div className="text-xs text-slate-400">Password: 123456</div>
+                  <div className="text-xs text-slate-400">密码：123456</div>
                 </button>
               ))}
             </div>
