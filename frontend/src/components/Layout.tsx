@@ -27,37 +27,34 @@ export default function Layout({ user, onLogout, children, currentView, onNaviga
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const userNavigation = [
-    { name: '查找会议室', id: 'search', icon: Search },
-    { name: '新建预约', id: 'book', icon: CalendarPlus },
+    { name: '查询会议室', id: 'search', icon: Search },
+    { name: '预约申请', id: 'book', icon: CalendarPlus },
     { name: '我的预约', id: 'my-bookings', icon: CalendarDays },
   ];
 
   const adminNavigation = [
     { name: '会议室管理', id: 'manage-rooms', icon: Settings },
-    { name: '统计', id: 'statistics', icon: BarChart3 },
+    { name: '数据统计', id: 'statistics', icon: BarChart3 },
     { name: '审批管理', id: 'manage-bookings', icon: LayoutDashboard },
   ];
 
-  const navigation = user.role === 'admin' ? [...userNavigation, ...adminNavigation] : userNavigation;
-
   return (
     <div className="flex h-screen overflow-hidden bg-neutral-50 text-neutral-900 font-sans">
-      {sidebarOpen ? (
-        <div className="fixed inset-0 z-20 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
-      ) : null}
+      {sidebarOpen && <div className="fixed inset-0 z-20 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-64 bg-slate-950 text-slate-300 transform transition-transform duration-300 lg:translate-x-0 lg:static flex flex-col ${
+        className={`fixed inset-y-0 left-0 z-30 w-60 bg-slate-900 text-slate-300 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="p-6 text-white font-bold text-xl flex items-center border-b border-slate-800">
-          <Building2 className="w-8 h-8 mr-2 text-cyan-400" />
-          <span>Meeting Room</span>
+          <Building2 className="w-8 h-8 mr-2 text-blue-500" />
+          <span>MRBS</span>
         </div>
 
         <nav className="flex-1 mt-6 overflow-y-auto">
-          {navigation.map((item) => {
+          <div className="px-4 mb-2 text-xs uppercase font-semibold text-slate-500 tracking-wider">用户功能</div>
+          {userNavigation.map((item) => {
             const Icon = item.icon;
             const isActive = currentView === item.id;
             return (
@@ -69,49 +66,92 @@ export default function Layout({ user, onLogout, children, currentView, onNaviga
                 }}
                 className={`w-full flex items-center px-6 py-3 transition-colors ${
                   isActive
-                    ? 'bg-white/10 border-l-4 border-cyan-400 text-white'
-                    : 'hover:bg-slate-900 border-l-4 border-transparent'
+                    ? 'bg-white/10 border-l-4 border-blue-500 text-white'
+                    : 'hover:bg-slate-800 border-l-4 border-transparent'
                 }`}
               >
-                <Icon className="w-5 h-5 mr-3" />
+                <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-white' : ''}`} />
                 {item.name}
               </button>
             );
           })}
+
+          {user.role === 'admin' ? (
+            <>
+              <div className="px-4 mt-8 mb-2 text-xs uppercase font-semibold text-slate-500 tracking-wider">管理员面板</div>
+              {adminNavigation.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      onNavigate(item.id);
+                      setSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center px-6 py-3 transition-colors ${
+                      isActive
+                        ? 'bg-white/10 border-l-4 border-blue-500 text-white'
+                        : 'hover:bg-slate-800 border-l-4 border-transparent text-slate-300'
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-white' : ''}`} />
+                    {item.name}
+                  </button>
+                );
+              })}
+            </>
+          ) : null}
         </nav>
 
-        <div className="p-4 border-t border-slate-800 text-sm">
-          <div className="text-white font-medium">{user.username}</div>
-          <div className="text-slate-400">{getRoleLabel(user.role)}</div>
+        <div className="p-4 border-t border-slate-800">
+          <div className="flex items-center space-x-3 text-sm">
+            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white uppercase">
+              {user.username.charAt(0)}
+            </div>
+            <div className="text-left">
+              <p className="text-white">{user.username}</p>
+              <p className="text-xs text-slate-400">{getRoleLabel(user.role)}</p>
+            </div>
+          </div>
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="flex-shrink-0 bg-white shadow-sm px-4 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-slate-500">
+        <header className="flex-shrink-0 h-16 bg-white shadow-sm flex items-center justify-between px-4 lg:px-8 z-10 w-full">
+          <div className="flex items-center">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden text-slate-500 hover:text-slate-700 focus:outline-none mr-4"
+            >
               <Menu className="h-6 w-6" />
             </button>
-            <div>
-              <h1 className="text-slate-900 font-semibold text-lg">工作台总览</h1>
-              <p className="text-slate-500 text-sm">已连接 FastAPI 和 SQLite</p>
-            </div>
+            <h1 className="text-slate-800 font-semibold text-lg hidden sm:block">会议室预约管理系统</h1>
           </div>
 
-          <button onClick={onLogout} className="text-slate-700 hover:text-slate-900 flex items-center transition-colors">
-            <LogOut className="h-4 w-4 mr-1" />
-            <span>{busy ? '处理中...' : '退出登录'}</span>
-          </button>
+          <div className="flex items-center space-x-4 lg:space-x-6 text-sm text-slate-600">
+            <span>
+              欢迎，<strong className="text-slate-900">{user.username}</strong>!
+            </span>
+            <div className="h-4 w-px bg-slate-300 hidden sm:block" />
+            <button
+              onClick={onLogout}
+              className="text-blue-600 hover:text-blue-800 flex items-center transition-colors"
+            >
+              <LogOut className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">{busy ? '处理中...' : '退出登录'}</span>
+            </button>
+          </div>
         </header>
 
         {banner ? (
-          <div className="mx-4 mt-4 lg:mx-8 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <div className="mx-4 mt-4 lg:mx-8 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
             {banner}
           </div>
         ) : null}
 
         <main className="flex-1 overflow-y-auto bg-slate-100 p-4 sm:p-6 lg:p-8">
-          <div className="mx-auto w-full max-w-7xl">{children}</div>
+          <div className="mx-auto w-full max-w-full">{children}</div>
         </main>
       </div>
     </div>
